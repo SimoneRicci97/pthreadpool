@@ -9,10 +9,6 @@
 
 #define CHECK_NEXT queue->it == NULL ? "NULL" : "not NULL"
 
-void _task_add(ptaskq_t* queue, ptask_t* ptask);
-ptaskq_item* _task_next(ptaskq_t* queue, int* term);
-void _ptaskq_destroy(ptaskq_t* ptaskq);
-
 ptaskq_item* new_ptaskq_item(ptask_t* ptask) {
 	ptaskq_item* item = malloc(sizeof(ptaskq_item));
 	item->task = ptask;
@@ -28,16 +24,13 @@ ptaskq_t* new_ptaskq(short circle) {
 	ptaskq->size = 0;
 	ptaskq->circle = circle;
 	ptaskq->it = NULL;
-	ptaskq->add = _task_add;
-	ptaskq->next = _task_next;
-	ptaskq->destroy = _ptaskq_destroy;
 	pthread_mutex_init(&ptaskq->mutex, NULL);
 	pthread_cond_init(&ptaskq->empty_semaphore, NULL);
 	pthread_cond_init(&ptaskq->nempty_semaphore, NULL);
 	return ptaskq;
 }
 
-void _task_add(ptaskq_t* queue, ptask_t* ptask) {
+void ptaskq_add(ptaskq_t* queue, ptask_t* ptask) {
 	if(queue == NULL || ptask == NULL) return;
 	pthread_mutex_lock(&queue->mutex);
 	ptaskq_item* item = new_ptaskq_item(ptask);
@@ -56,7 +49,7 @@ void _task_add(ptaskq_t* queue, ptask_t* ptask) {
 	pthread_mutex_unlock(&queue->mutex);
 }
 
-ptaskq_item* _task_next(ptaskq_t* queue, int* term) {
+ptaskq_item* ptaskq_next(ptaskq_t* queue, int* term) {
 	if(queue == NULL) return NULL;
 	pthread_mutex_lock(&queue->mutex);
 	while(queue->size == 0 && !*term) {
@@ -82,7 +75,7 @@ ptaskq_item* _task_next(ptaskq_t* queue, int* term) {
 }
 
 
-void _ptaskq_destroy(ptaskq_t* ptaskq) {
+void ptaskq_destroy(ptaskq_t* ptaskq) {
 	pthread_mutex_destroy(&ptaskq->mutex);
 	pthread_cond_destroy(&ptaskq->empty_semaphore);
 	pthread_cond_destroy(&ptaskq->nempty_semaphore);

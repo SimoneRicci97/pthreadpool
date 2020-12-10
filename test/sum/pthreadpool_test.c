@@ -90,23 +90,27 @@ ulong test_nthread(int* a, int nthreads, int chunksize) {
 		args->a = a;
 		args->begin = i;
 		args->end = i + chunksize;
-		tp->add_task(tp, sum10_routine, args);
+		ptp_add_task(tp, sum10_routine, args);
 	}
-	tp->start(tp);
+	ptp_start(tp);
+	int freed=0;
 	ulong totsum = 0;
 	int returned = 0;
 	while(returned<TEST_SIZE/chunksize) {
-		void* retval = tp->status->exits->get(tp->status->exits, tp->status->status);
+		exit_item_t* retval = pretval_get(tp->status->exits, tp->status->status);
 		if(retval) {
 			ulong* chunksum = malloc(sizeof(ulong));
-			memcpy(chunksum, retval, sizeof(ulong));
+			memcpy(chunksum, retval->exit_status, sizeof(ulong));
 			totsum += *chunksum;
 			returned ++;
 			free(chunksum);
+			free(retval->exit_status);
 			free(retval);
+			freed++;
 		}
 	}
-	tp->stop(tp);
+//	printf("freed %d els\n", freed);
+	ptp_stop(tp);
 	destroy_pthreadpool(tp);
 	return totsum;
 }

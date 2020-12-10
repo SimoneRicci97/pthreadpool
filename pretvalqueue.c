@@ -5,11 +5,6 @@
 
 #include "pretvalqueue.h"
 
-
-void* _retval_get(exitq_t* q, int* term);
-void _retval_insert(exitq_t* q, void* extstatus);
-void _retval_destroy(exitq_t* q);
-
 exitq_t* new_retvalq() {
 	exitq_t* q = malloc(sizeof(exitq_t));
 	q->head = NULL;
@@ -17,13 +12,10 @@ exitq_t* new_retvalq() {
 	q->size = 0;
 	pthread_mutex_init(&q->mutex, NULL);
 	pthread_cond_init(&q->empty_semaphore, NULL);
-	q->insert = _retval_insert;
-	q->get = _retval_get;
-	q->destroy = _retval_destroy;
 	return q;
 }
 
-void* _retval_get(exitq_t* q, int* term) {
+exit_item_t* pretval_get(exitq_t* q, int* term) {
 	if(q == NULL) return NULL;
 	pthread_mutex_lock(&q->mutex);
 	while(q->size == 0 && !*term) {
@@ -39,11 +31,10 @@ void* _retval_get(exitq_t* q, int* term) {
 	if(q->head != NULL) q->head->prec = NULL;
 	q->size--;
 	pthread_mutex_unlock(&q->mutex);
-	void* retval = exstatus->exit_status;
-	return retval;
+	return exstatus;
 }
 
-void _retval_insert(exitq_t* q, void* extstatus) {
+void pretval_insert(exitq_t* q, void* extstatus) {
 	if(q == NULL) return;
 	pthread_mutex_lock(&q->mutex);
 	exit_item_t* item = malloc(sizeof(exit_item_t));
@@ -63,11 +54,12 @@ void _retval_insert(exitq_t* q, void* extstatus) {
 	pthread_mutex_unlock(&q->mutex);
 }
 
-void _retval_destroy(exitq_t* q) {
+void pretval_destroy(exitq_t* q) {
 	pthread_mutex_destroy(&q->mutex);
 	pthread_cond_destroy(&q->empty_semaphore);
 	exit_item_t* ptr = q->head;
 	while(q->head != NULL) {
+		printf("DESTROY\n");
 		q->head = q->head->next;
 		q->head->prec = NULL;
 		free(ptr);
