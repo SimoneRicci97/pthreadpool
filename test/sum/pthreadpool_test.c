@@ -42,7 +42,7 @@ int main(int argc, char const *argv[])
 	t1 = gettimeofdaymicros();
 	fprintf(stderr, "Single thread\n");
 	fprintf(stderr, "\tSum: %ld\n", sum);
-	fprintf(stderr, "\tExecution time: %.2f\n", (t1 - t0) / 1000.f);
+	fprintf(stderr, "\tExecution time: %.2f micros\n", (t1 - t0) / 1000.f);
 
 	printf("\n");
 	nthreads_report(a, 2, TEST_SIZE * SMALL_CHUNKS);
@@ -69,7 +69,7 @@ void nthreads_report(int* a, int nthreads, int chunksize) {
 	fprintf(stderr, "%d threads\n", nthreads);
 	fprintf(stderr, "Chunksize: %d\n", chunksize);
 	fprintf(stderr, "\tSum: %ld\n", sum);
-	fprintf(stderr, "\tExecution time: %.2f\n", (t1 - t0) / 1000.f);
+	fprintf(stderr, "\tExecution time: %.2f micros\n", (t1 - t0) / 1000.f);
 }
 
 ulong test_1thread(int* a) {
