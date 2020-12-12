@@ -82,7 +82,7 @@ Testing it on my machine (quad-core architecture 2.5 GHz, with 8 Gb memory, OS U
 As you can see, the execution time depends on the number of threads in threadpool and and the size of array segment handled by a task.  
   
 # Project using pthreadpool  
-> [Coming soon](www.example.com)  
+> [Coming soon](coming-soon)  
   
 # Hint  
 Feel free to suggest features, report bug fixes or contribute.  
